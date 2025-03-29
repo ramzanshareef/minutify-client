@@ -1,0 +1,25 @@
+
+E:\clerk-chrome-extension-quickstart
+├── .env.chrome
+├── .env.development
+├── .github
+├── .gitignore
+├── .plasmo
+├── .prettierrc.mjs
+├── assets
+├── build
+├── node_modules
+├── package.json
+├── pnpm-lock.yaml
+├── postcss.config.js
+├── README.md
+├── src
+├── structure.txt
+├── tailwind.config.js
+└── tsconfig.json
+
+directory: 6 file: 11
+
+
+
+[2K[1G
