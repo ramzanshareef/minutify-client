@@ -1,108 +1,165 @@
-import { UserButton } from "@clerk/chrome-extension";
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-
-interface MeetingSummary {
-    sno: number;
-    meetingId: string;
-    summary: string;
-    date: string;
-    actionItems: string[];
-}
+import { UserButton, useUser } from "@clerk/chrome-extension"
+import { useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
+import { motion } from "framer-motion"
+import moment from "moment"
+import { PlusCircle } from "lucide-react"
+import React from "react"
 
 function Dashboard() {
-    const navigate = useNavigate();
-    const [isPopupOpen, setIsPopupOpen] = useState(false);
+    const navigate = useNavigate()
+    const { user } = useUser()
+    const [pastMeetings, setPastMeetings] = useState([])
+    const [loading, setLoading] = useState(true)
 
     useEffect(() => {
         const handleWindowFocus = () => {
-            setIsPopupOpen(true);
             chrome.storage.local.get(["recordingState"], (result) => {
                 if (result.recordingState?.status === "recording") {
-                    navigate("/new");
+                    navigate("/new")
                 }
-            });
-        };
-
-        window.addEventListener("focus", handleWindowFocus);
-        return () => window.removeEventListener("focus", handleWindowFocus);
-    }, []);
-    const [pastMeetings, setPastMeetings] = useState<MeetingSummary[]>([
-        {
-            sno: 1,
-            meetingId: '65a8f1c887a8c76a8f1c887a',
-            summary: 'Q4 Planning Session',
-            date: '2024-01-15',
-            actionItems: ['Prepare sales report', 'Update project timeline']
-        },
-        {
-            sno: 2,
-            meetingId: '65a8f1c887a8c76a8f1c887b',
-            summary: 'Product Roadmap',
-            date: '2024-01-18',
-            actionItems: ['Review feature specs', 'Contact UX team']
+            })
         }
-    ]);
+        window.addEventListener("focus", handleWindowFocus)
+        return () => window.removeEventListener("focus", handleWindowFocus)
+    }, [])
+
+    useEffect(() => {
+        const fetchMeetings = async () => {
+            if (!user?.primaryEmailAddress?.emailAddress) return
+            setLoading(true)
+            try {
+                const res = await fetch("http://localhost:3000/api/meetings", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        userEmail: user.primaryEmailAddress.emailAddress,
+                    }),
+                })
+                const data = await res.json()
+                if (data.status === 200) {
+                    setPastMeetings(data.meetings)
+                } else {
+                    console.error(data.message)
+                }
+            } catch (err) {
+                console.error("Failed to fetch meetings:", err)
+            } finally {
+                setLoading(false)
+            }
+        }
+        fetchMeetings()
+    }, [])
 
     return (
-        <div className="min-h-screen bg-gray-100 p-8">
-            <div className="max-w-6xl mx-auto">
-                <div className="flex justify-between items-center mb-8">
-                    <h1 className="text-3xl font-bold text-gray-800">Meeting Summaries</h1>
-                    <button
-                        onClick={() => navigate("/new")}
-                        className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg transition-colors"
+        <div className="bg-gradient-to-br from-indigo-50 to-white p-4 overflow-auto">
+            <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                className="max-w-6xl mx-auto"
+            >
+                <div className="flex justify-between items-center mb-10">
+                    <motion.div
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.6 }}
                     >
-                        New Meeting Summary
-                    </button>
+                        <h1 className="text-4xl font-extrabold text-indigo-800">📋 Meeting Summaries</h1>
+                        <p className="text-gray-500 mt-1 text-sm">Review and revisit your AI-powered meeting transcripts.</p>
+                    </motion.div>
 
-                    <UserButton />
+                    <motion.div
+                        initial={{ opacity: 0, x: 10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.6 }}
+                        className="flex items-center gap-4"
+                    >
+                        <motion.button
+                            initial={{ opacity: 0.95 }}
+                            whileHover={{ opacity: 1 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => navigate("/new")}
+                            className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-md text-sm font-semibold flex items-center gap-2 border shadow-sm transition"
+                        >
+                            <PlusCircle size={18} /> New Summary
+                        </motion.button>
+                        <UserButton />
+                    </motion.div>
                 </div>
 
-                <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-                    <table className="w-full">
-                        <thead className="bg-gray-50">
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6 }}
+                    className="bg-white rounded-xl border shadow-sm border-indigo-100 overflow-hidden"
+                >
+                    <table className="w-full text-sm rounded-xl border shadow-sm">
+                        <thead className="bg-indigo-100 text-indigo-700 text-xs font-bold uppercase">
                             <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">S.No</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Meeting ID</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Summary</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                                <th className="px-6 py-3 text-left">S.No</th>
+                                <th className="px-6 py-3 text-left">Meeting ID</th>
+                                <th className="px-6 py-3 text-left">Summary</th>
+                                <th className="px-6 py-3 text-left">Date</th>
+                                <th className="px-6 py-3 text-left">Actions</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-200">
-                            {pastMeetings.map((meeting) => (
-                                <tr key={meeting.meetingId}>
-                                    <td className="px-6 py-4 text-sm text-gray-600">{meeting.sno}</td>
-                                    <td className="px-6 py-4 text-sm text-gray-600 font-mono">
-                                        {meeting.meetingId.slice(-8)}
-                                    </td>
-                                    <td className="px-6 py-4 text-sm text-gray-800">{meeting.summary}</td>
-                                    <td className="px-6 py-4 text-sm text-gray-600">{meeting.date}</td>
-                                    <td className="px-6 py-4 text-sm">
+                        <tbody className="divide-y divide-gray-200 text-gray-700">
+                            {pastMeetings?.map((meeting, index) => (
+                                <motion.tr
+                                    key={index}
+                                    initial={{ opacity: 0, y: 5 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.3, delay: index * 0.05 }}
+                                    className="hover:bg-indigo-50 transition-all"
+                                >
+                                    <td className="px-6 py-4 font-semibold text-indigo-600 w-fit">{index + 1}</td>
+                                    <td className="px-6 py-4 font-mono text-indigo-700">{meeting._id.toString().slice(0, 5)}...</td>
+                                    <td className="px-6 py-4">{meeting.summary ? meeting.summary.slice(0, 30) + "..." : "No summary yet"}</td>
+                                    <td className="px-6 py-4">{moment(meeting.createdAt).format("MMM Do, YYYY")}</td>
+                                    <td className="px-6 py-4">
                                         <button
-                                            onClick={() => navigate(`/summary/${meeting.meetingId}`)}
-                                            className="text-indigo-600 hover:text-indigo-800 font-medium group"
+                                            onClick={() => navigate(`/meeting/${meeting._id.toString()}`)}
+                                            className="text-indigo-600 hover:text-indigo-800 font-medium group transition"
                                         >
-                                            View Details <span
-                                                className="inline-block transition-transform transform group-hover:translate-x-1 ml-1"
-                                            >→</span>
+                                            View Details <span className="inline-block ml-1 group-hover:translate-x-1 transition-transform">→</span>
                                         </button>
                                     </td>
-                                </tr>
+                                </motion.tr>
                             ))}
                         </tbody>
                     </table>
 
-                    {pastMeetings.length === 0 && (
-                        <div className="text-center py-8 bg-gray-50">
-                            <p className="text-gray-500">No past meetings found. Start a new meeting summary!</p>
+                    {!loading && pastMeetings.length === 0 && (
+                        <div className="text-center py-12 bg-indigo-50 text-gray-600">
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ delay: 0.3 }}
+                                className="text-lg"
+                            >
+                                🚫 No past meetings found.
+                                <br />
+                                <span className="text-sm">Click “New Summary” above to get started.</span>
+                            </motion.div>
                         </div>
                     )}
-                </div>
-            </div>
+
+                    {loading && (
+                        <div className="text-center py-12 bg-indigo-50">
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ repeat: Infinity, duration: 1, repeatType: "reverse" }}
+                                className="text-indigo-500 text-sm animate-pulse"
+                            >
+                                Loading your meetings...
+                            </motion.div>
+                        </div>
+                    )}
+                </motion.div>
+            </motion.div>
         </div>
-    );
+    )
 }
 
 export default Dashboard;
