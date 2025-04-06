@@ -116,7 +116,7 @@ function Dashboard() {
                                     <td className="px-6 py-4 font-semibold text-indigo-600 w-fit">{index + 1}</td>
                                     <td className="px-6 py-4 font-mono text-indigo-700">{meeting._id.toString().slice(0, 5)}...</td>
                                     <td className="px-6 py-4">{meeting.summary ? meeting.summary.slice(0, 30) + "..." : "No summary yet"}</td>
-                                    <td className="px-6 py-4">{moment(meeting.createdAt).format("DD/MM/YY HH:mm A")}</td>
+                                    <td className="px-6 py-4">{moment(meeting.createdAt).format("DD/MM/YY hh:mm a")}</td>
                                     <td className="px-6 py-4">
                                         <button
                                             onClick={() => navigate(`/meeting/${meeting._id.toString()}`)}
