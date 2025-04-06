@@ -29,7 +29,8 @@ function Dashboard() {
             if (!user?.primaryEmailAddress?.emailAddress) return
             setLoading(true)
             try {
-                const res = await fetch("http://localhost:3000/api/meetings", {
+                console.log(process.env);
+                const res = await fetch("https://minutify-backend.vercel.app/api/meetings", {
                     method: "POST",
                     body: JSON.stringify({
                         userEmail: user.primaryEmailAddress.emailAddress,
@@ -91,9 +92,9 @@ function Dashboard() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6 }}
-                    className="bg-white rounded-xl border shadow-sm border-indigo-100 overflow-hidden"
+                    className="bg-white rounded-md border shadow-sm border-indigo-100 overflow-hidden"
                 >
-                    <table className="w-full text-sm rounded-xl border shadow-sm">
+                    <table className="w-full text-sm rounded-md border shadow-sm">
                         <thead className="bg-indigo-100 text-indigo-700 text-xs font-bold uppercase">
                             <tr>
                                 <th className="px-6 py-3 text-left">S.No</th>
@@ -115,7 +116,7 @@ function Dashboard() {
                                     <td className="px-6 py-4 font-semibold text-indigo-600 w-fit">{index + 1}</td>
                                     <td className="px-6 py-4 font-mono text-indigo-700">{meeting._id.toString().slice(0, 5)}...</td>
                                     <td className="px-6 py-4">{meeting.summary ? meeting.summary.slice(0, 30) + "..." : "No summary yet"}</td>
-                                    <td className="px-6 py-4">{moment(meeting.createdAt).format("MMM Do, YYYY")}</td>
+                                    <td className="px-6 py-4">{moment(meeting.createdAt).format("DD/MM/YY HH:mm A")}</td>
                                     <td className="px-6 py-4">
                                         <button
                                             onClick={() => navigate(`/meeting/${meeting._id.toString()}`)}

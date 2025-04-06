@@ -16,7 +16,7 @@ function SummaryPage() {
     useEffect(() => {
         const fetchMeeting = async () => {
             try {
-                const res = await fetch("http://localhost:3000/api/meetings/getMeeting", {
+                const res = await fetch("https://minutify-backend.vercel.app/api/meetings/getMeeting", {
                     method: "POST",
                     body: JSON.stringify({
                         userEmail: user?.primaryEmailAddress?.emailAddress,
@@ -42,7 +42,7 @@ function SummaryPage() {
 
     const handleDelete = async () => {
         try {
-            const res = await fetch("http://localhost:3000/api/meetings/deleteMeeting", {
+            const res = await fetch("https://minutify-backend.vercel.app/api/meetings/deleteMeeting", {
                 method: "POST",
                 body: JSON.stringify({
                     userEmail: user?.primaryEmailAddress?.emailAddress,
