@@ -6,17 +6,17 @@ import { ToDashBoardButton } from "~components/Buttons"
 import { motion } from "framer-motion"
 
 function SummaryPage() {
-    const navigate = useNavigate()
-    const { meetingID } = useParams()
-    const [meetingDetails, setMeetingDetails] = useState<any>(null)
-    const [loading, setLoading] = useState(true)
-    const [error, setError] = useState<string | null>(null)
-    const { user } = useUser()
+    const navigate = useNavigate();
+    const { meetingID } = useParams();
+    const [meetingDetails, setMeetingDetails] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const { user } = useUser();
 
     useEffect(() => {
         const fetchMeeting = async () => {
             try {
-                const res = await fetch("https://minutify-backend.vercel.app/api/meetings/getMeeting", {
+                const res = await fetch(`${process.env.PLASMO_PUBLIC_BACKEND_URL}/api/meetings/getMeeting`, {
                     method: "POST",
                     body: JSON.stringify({
                         userEmail: user?.primaryEmailAddress?.emailAddress,
@@ -42,7 +42,7 @@ function SummaryPage() {
 
     const handleDelete = async () => {
         try {
-            const res = await fetch("https://minutify-backend.vercel.app/api/meetings/deleteMeeting", {
+            const res = await fetch(`${process.env.PLASMO_PUBLIC_BACKEND_URL}/api/meetings/deleteMeeting`, {
                 method: "POST",
                 body: JSON.stringify({
                     userEmail: user?.primaryEmailAddress?.emailAddress,
@@ -99,13 +99,13 @@ function SummaryPage() {
                     >
                         <div className="flex justify-between items-center mb-6">
                             <ToDashBoardButton />
+                            <h1 className="text-2xl font-bold text-gray-800">Meeting Summary</h1>
                             <UserButton />
                         </div>
-                        <h1 className="text-3xl font-bold text-gray-800">Meeting Summary</h1>
                         <div>
                             <p className="text-sm text-gray-500 mb-2">Meeting Date & Time</p>
                             <p className="text-lg font-semibold text-gray-800">
-                                {moment(meetingDetails.createdAt).format("MMMM Do YYYY, h:mm A")}
+                                {moment(meetingDetails?.createdAt).format("MMMM Do YYYY, h:mm A")}
                             </p>
                         </div>
 
@@ -113,31 +113,27 @@ function SummaryPage() {
                             <div className="md:col-span-2">
                                 <h2 className="text-xl font-bold text-gray-800 mb-4">Summary</h2>
                                 <p className="text-gray-600 leading-relaxed">
-                                    {meetingDetails.summary}
+                                    {meetingDetails?.summary}
                                 </p>
                             </div>
 
                             <div className="md:col-span-1">
                                 <div className="bg-indigo-50 rounded-lg p-6">
                                     <h3 className="text-lg font-semibold text-indigo-800 mb-4">Your Action Items</h3>
-                                    {meetingDetails?.actionItems?.length > 0 ? (
-                                        <ul className="space-y-3">
-                                            {meetingDetails.actionItems.map((item: string, index: number) => (
-                                                <motion.li
-                                                    key={index}
-                                                    initial={{ opacity: 0, x: -5 }}
-                                                    animate={{ opacity: 1, x: 0 }}
-                                                    transition={{ delay: index * 0.05 }}
-                                                    className="flex items-start text-sm text-indigo-900"
-                                                >
-                                                    <span className="mt-1 mr-2">•</span>
-                                                    {item}
-                                                </motion.li>
-                                            ))}
-                                        </ul>
-                                    ) : (
-                                        <p className="text-sm text-gray-500">No action items.</p>
-                                    )}
+                                    <ul className="space-y-3">
+                                        {meetingDetails?.actionItems?.map((item: string, index: number) => (
+                                            <motion.li
+                                                key={index}
+                                                initial={{ opacity: 0, x: -5 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                transition={{ delay: index * 0.05 }}
+                                                className="flex items-start text-sm text-indigo-900"
+                                            >
+                                                <span className="mt-1 mr-2">•</span>
+                                                {item}
+                                            </motion.li>
+                                        ))}
+                                    </ul>
                                 </div>
                             </div>
                         </div>
@@ -147,7 +143,7 @@ function SummaryPage() {
                         <div>
                             <h2 className="text-xl font-bold text-gray-800 mb-4">Transcript</h2>
                             <div className="bg-gray-50 p-4 rounded-lg text-sm text-gray-700 whitespace-pre-line max-h-[400px] overflow-y-auto">
-                                {meetingDetails.transcript}
+                                {meetingDetails?.transcript}
                             </div>
                         </div>
 

@@ -79,7 +79,7 @@ function NewMeetingPage() {
         formData.append("userEmail", user.emailAddresses[0].emailAddress)
 
         try {
-            const res = await fetch("https://minutify-backend.vercel.app/api/summarize", {
+            const res = await fetch(`${process.env.PLASMO_PUBLIC_BACKEND_URL}/api/summarize`, {
                 method: "POST",
                 body: formData,
             })
